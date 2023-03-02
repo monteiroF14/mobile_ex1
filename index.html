@@ -11,26 +11,35 @@
         <style>
             * {
                 font-family: Arial, Helvetica, sans-serif;
+                margin: 0;
+                padding: 0;
             }
 
             body {
                 display: grid;
-                place-items: center;
+                grid-template-rows: 1fr 3fr;
+                width: 60vw;
+                height: 100vh;
+                margin: 0 auto;
             }
 
             form {
-                padding: 3rem;
-                outline: black;
                 display: flex;
                 gap: 2rem;
+                height: fit-content;
+                margin: auto 0;
             }
 
             button {
-                padding: 0.5rem;
                 font-weight: bold;
                 border: 2px solid black;
                 background-color: transparent;
                 cursor: pointer;
+                padding-inline: 1rem;
+            }
+
+            form input {
+                flex-grow: 1;
             }
 
             input {
@@ -42,15 +51,32 @@
 
             .flex {
                 display: flex;
-                gap: 1rem;
+                gap: 2rem;
+                width: 100%;
+            }
+
+            .toDoList {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .toDoList h1 {
+                text-transform: uppercase;
+            }
+
+            .toDoList p {
+                flex-grow: 1;
             }
         </style>
     </head>
     <body>
         <form>
-            <input type="text" name="txtBox" id="txtBox" placeholder="Insira um item.." />
+            <input type="text" id="txtBox" placeholder="Adicione um item à lista.." />
             <button type="submit">Adicionar</button>
         </form>
-        <div class="toDoList"> </div>
+        <div class="toDoList">
+            <h1>Lista de afazeres</h1>
+        </div>
     </body>
 </html>

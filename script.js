@@ -1,18 +1,16 @@
-document.querySelector("form")?.addEventListener("submit", (e) => {
-    const toDoList = document.querySelector(".toDoList");
-    const txtBox = document.querySelector("#txtBox");
+const toDoListElement = document.querySelector(".toDoList");
+const txtBox = document.querySelector("#txtBox");
 
-    e.preventDefault();
-
+function createListElement(listItem) {
     const d = document.createElement("div");
-    d.setAttribute("class", "flex");
+    d.classList.add("flex");
 
     const p = document.createElement("p");
-    p.innerHTML = txtBox.value;
+    p.innerHTML = listItem;
     p.setAttribute("contentEditable", "true");
 
     const b = document.createElement("button");
-    b.setAttribute("class", "removeBtn");
+    b.classList.add("removeBtn");
     b.innerHTML = "X";
 
     const c = document.createElement("input");
@@ -22,19 +20,103 @@ document.querySelector("form")?.addEventListener("submit", (e) => {
     d?.appendChild(p);
     d?.appendChild(b);
 
-    toDoList?.appendChild(d);
+    toDoListElement?.appendChild(d);
+}
 
-    document.querySelectorAll(".removeBtn")?.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            btn?.parentElement?.remove();
+let toDoList = [];
+
+function loadToDoList() {
+    if (!localStorage.getItem("toDoList")) {
+        localStorage.setItem("toDoList", JSON.stringify([]));
+        toDoList = localStorage.getItem("toDoList");
+    } else {
+        toDoList = localStorage.getItem("toDoList");
+        toDoList = JSON.parse(toDoList);
+        toDoList.forEach((item) => {
+            createListElement(item.value);
+            if (item.isDone === true) {
+                makeLineThrough(item);
+                checkListItem(item.value);
+            }
         });
+    }
+}
+
+function checkListItem(item) {
+    document.querySelectorAll('input[type="checkBox"]').forEach((check) => {
+        if (check.parentElement.children[1].innerHTML === item) {
+            check.checked = true;
+        }
     });
+}
+
+function makeLineThrough(item) {
+    if (item) {
+        document.querySelectorAll('input[type="checkBox"]').forEach((check) => {
+            check.parentElement.children[1].style.textDecoration = "line-through";
+        });
+    }
 
     document.querySelectorAll('input[type="checkBox"]').forEach((check) => {
         check.addEventListener("change", () => {
-            if (this.checked) {
-                console.log(check.parentElement);
+            if (check.checked) {
+                check.parentElement.children[1].style.textDecoration = "line-through";
+
+                toDoList.find((item) => {
+                    if (item.value === check.parentElement.children[1].innerHTML) {
+                        item.isDone = true;
+                    }
+                });
+            } else {
+                check.parentElement.children[1].style.textDecoration = "none";
+
+                toDoList.find((item) => {
+                    if (item.value === check.parentElement.children[1].innerHTML) {
+                        item.isDone = false;
+                    }
+                });
             }
+
+            localStorage.setItem("toDoList", JSON.stringify(toDoList));
         });
     });
+}
+
+function removeFromToDoList() {
+    document.querySelectorAll(".removeBtn")?.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const pos = toDoList.indexOf(btn.parentElement.children[1].innerHTML);
+
+            toDoList = localStorage.getItem("toDoList");
+            toDoList = JSON.parse(toDoList);
+            toDoList.splice(pos, 1);
+            localStorage.setItem("toDoList", JSON.stringify(toDoList));
+
+            btn?.parentElement?.remove();
+        });
+    });
+}
+
+document.querySelector("form")?.addEventListener("submit", (event) => {
+    function addToLocalStorage(status = false) {
+        toDoList.push({
+            value: txtBox.value,
+            isDone: status,
+        });
+
+        localStorage.setItem("toDoList", JSON.stringify(toDoList));
+    }
+
+    event.preventDefault();
+
+    createListElement(txtBox.value);
+    addToLocalStorage();
+
+    txtBox.value = "";
 });
+
+onload = () => {
+    loadToDoList();
+    makeLineThrough();
+    removeFromToDoList();
+};
